@@ -1,0 +1,17 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    openssh-server \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /var/run/sshd
+RUN useradd -m -s /bin/bash jenkins
+RUN mkdir -p /home/jenkins/.ssh && chown jenkins:jenkins /home/jenkins/.ssh
+
+# Copy the PUBLIC key (The Lock)
+COPY jenkins_key.pub /home/jenkins/.ssh/authorized_keys
+RUN chown jenkins:jenkins /home/jenkins/.ssh/authorized_keys && chmod 600 /home/jenkins/.ssh/authorized_keys
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
